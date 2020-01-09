@@ -36,6 +36,3 @@ npm run build
 
 1.0.0
 - Release
-
-
-CRINON Nicolas ncrinon@mgen.fr
