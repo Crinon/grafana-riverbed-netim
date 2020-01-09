@@ -1,0 +1,304 @@
+<!-- A query-editor-row is triggered when you press the 'Add Query' button, a row is A, B, C, D .... -->
+<query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
+
+  <!--*****************************************************************************************************-->
+  <!--                                       SOURCE TYPE                                                   -->
+  <!--                                         ROLLUP                                                      -->
+  <!--                                        TIMESHIFT                                                    -->
+  <!--                                          ALIAS                                                      -->
+  <!--*****************************************************************************************************-->
+  <!-- Section for source type selecting ('Device', 'Interface') -->
+    <!-- div class="gf-form-inline" is a line -->
+    <div class="gf-form-inline">
+      <!-- div class="gf-form max-width-18" is a label and his select or dropdown associated -->
+      <div class="gf-form max-width-18">
+        <!-- Label for the <select> or <dropdown> associated -->
+        <label class="gf-form-label width-7">Source type</label>
+        <!-- Field for source type selection ('Device', 'Interface') -->
+        <div class="gf-form-select-wrapper width-11">
+          <!-- ng-model : bind slected value to attribute of ctrl.target -->
+          <!-- ng-change : run method in ctrl when selection is made -->
+          <!-- ng-options : presents all options from source (source can be an attribute array (current case) or be retrievied from en point ) -->
+          <!-- ng-init : default value -->
+          <select class="gf-form-input"    
+                  ng-model="ctrl.target.type"
+                  ng-change="ctrl.runningSelect()"
+                  ng-options="f as f for f in ctrl.target.sourceTypeTab"
+                  ng-init="ctrl.target.type = ctrl.target.type" >
+          </select>
+        </div>
+      </div>
+
+          <!-- Timeshift -->
+          <div ng-if="!ctrl.target.rawQuery">
+            <div class="gf-form">
+              <label class="gf-form-label query-keyword width-7">Timeshift<info-popover mode="left-normal">
+                  Timeshift is the number of day before specified range.
+                </info-popover></label>
+              <input class="gf-form-input" ng-change="ctrl.onChangeInternal()" type="text"
+                style="height:2.5em;width:3.5em;text-align:center" ng-model="ctrl.target.timeshift">
+            </div>
+          </div>
+
+
+    <!-- Custom alias, need to exit field or press ENTER to submit value-->
+    <div ng-if="!ctrl.target.rawQuery">
+      <div class="gf-form">
+        <label class="gf-form-label query-keyword width-7">Alias<info-popover mode="left-normal">
+            Exit field or press ENTER to submit your alias.
+          </info-popover></label>
+        <!-- WARNING : to avoid request each type field is modified : ng-model-options="{updateOn : 'change'}" -->
+        <input class="gf-form-input" ng-model-options="{updateOn : 'change'}" ng-change="ctrl.onChangeInternal()"
+          type="text" style="height:2.5em;width:300px;" ng-model="ctrl.target.customAlias">
+      </div>
+    </div>
+
+
+      <!-- Section for rollup algorithm selection ('average, maximum ...) -->
+      <div ng-if="!ctrl.target.rawQuery">
+        <div class="gf-form">
+            <label class="gf-form-label query-keyword width-7">Rollup<info-popover mode="left-normal">
+              For query longer than 24 hours
+            </info-popover></label>
+          <gf-form-dropdown model="ctrl.target.rollupType"
+            style="width: 180px;"
+            lookup-text="true"
+            get-options="ctrl.getRollupOptions($query)"
+            on-change="ctrl.onChangeInternal()">
+          </gf-form-dropdown>
+        </div>
+      </div> 
+
+  <!-- Aesthetic grey line taking right space to end of the line -->
+      <div class="gf-form gf-form--grow">
+        <div class="gf-form-label gf-form-label--grow"></div>
+      </div>
+    </div>
+    <!-- End of the line -->
+  
+  
+  <!--*****************************************************************************************************-->
+  <!--                                                                                                     -->  
+  <!--                                      DEVICE BOXES                                                   -->
+  <!--                                                                                                     -->
+  <!--*****************************************************************************************************-->
+  <!-- New line -->
+    <!-- This line only reveals if boolean displayDeviceBox from query_ctrl is ON -->
+    <div class="gf-form-inline" ng-show="ctrl.target.displayDeviceBox == true" ng-disabled="!ctrl.target.displayDeviceBox == true">   
+<!-- Device selection -->
+      <!-- Allow rawQuery (typing in box) -->
+      <div ng-if="!ctrl.target.rawQuery">
+        <!-- Container for label and dropdown (=select) -->
+        <div class="gf-form">
+          <!-- Label (description) -->
+          <label class="gf-form-label query-keyword width-7">Device</label>
+          <!-- This dropdown shows every host_group returned by the method getDeviceOptions($query) from query_ctrl.js -->
+          <!-- box display device's name but selected option is device's id (hidden) -->
+          <!-- model : bind device's id to ctrl.target.deviceID -->
+          <!-- allow-custom and lookup-text let user type device's name wished or just type for refining search -->
+          <!-- get-options calls method getDeviceOptions($query) that shows devices returned by '/getDevices' end point -->
+          <!-- on-change use method onChangeInternal() that trigger the method query(), data are requested to end point '/query' and data are exepecting to be returned by Riverbed NetIM, they will be displayed in graph-->
+          <gf-form-dropdown model="ctrl.target.deviceID"
+            style="width: 300px;"
+            allow-custom="true"
+            lookup-text="true"
+            get-options="ctrl.getDeviceOptions($query)"
+            on-change="ctrl.onChangeInternal()">
+        </gf-form-dropdown>
+        </div>
+      </div>
+
+      <!-- Aesthetic right space -->
+      <div class="gf-form gf-form--grow">
+        <div class="gf-form-label gf-form-label--grow"></div>
+      </div>
+    </div>
+  
+
+  
+  <!-- New line -->
+  <div class="gf-form-inline" ng-show="ctrl.target.displayDeviceBox == true" ng-disabled="!ctrl.target.displayDeviceBox == true">   
+<!-- Metric class selection -->
+      <div ng-if="!ctrl.target.rawQuery">
+        <div class="gf-form">
+            <label class="gf-form-label query-keyword width-7">Metric class</label>
+          <gf-form-dropdown model="ctrl.target.metricClassID"
+            style="width: 300px;"
+            allow-custom="true"
+            lookup-text="true"
+            get-options="ctrl.getMetricClassOptions($query)"
+            on-change="ctrl.onChangeInternal()">
+          </gf-form-dropdown>
+        </div>
+      </div>   
+
+<!-- Metric of metric class selection -->
+      <div ng-if="!ctrl.target.rawQuery">
+        <div class="gf-form">
+            <label class="gf-form-label query-keyword width-7">Metric</label>
+          <gf-form-dropdown model="ctrl.target.metricID"
+            style="width: 300px;"
+            allow-custom="true"
+            lookup-text="true"
+            get-options="ctrl.getMetricOptions($query)"
+            on-change="ctrl.onChangeInternal()">
+          </gf-form-dropdown>
+        </div>
+      </div>   
+    <!-- Aesthetic right space -->
+      <div class="gf-form gf-form--grow">
+        <div class="gf-form-label gf-form-label--grow"></div>
+      </div>
+    </div>
+
+    <div class="gf-form-inline" ng-show="ctrl.target.displayDeviceBox" ng-disabled="!ctrl.target.displayDeviceBox">   
+  
+      <!-- <div class="gf-form-inline" ng-show="ctrl.target.displayDifferenciationAndCurveBox" ng-disabled="!ctrl.target.displayDifferenciationAndCurveBox">    -->
+      <!-- <div class="gf-form-inline">    -->
+    
+        <!-- Differenciation selection -->
+        <div ng-if="!ctrl.target.rawQuery">
+          <div class="gf-form">
+            <label class="gf-form-label query-keyword width-7">Differenciation</label>
+          <gf-form-dropdown model="ctrl.target.differenciation"
+              style="width: 300px;"
+              allow-custom="true"
+              lookup-text="true"
+              get-options="ctrl.getDifferenciationOptions($query)"
+              on-change="ctrl.onChangeInternal()">
+          </gf-form-dropdown>
+          </div>
+        </div>
+      
+    <!-- Curve selection -->
+        <div ng-if="!ctrl.target.rawQuery">
+          <div class="gf-form">
+            <label class="gf-form-label query-keyword width-7">Curve to print</label>
+          <gf-form-dropdown model="ctrl.target.selectedCurve"
+              style="width: 300px;"
+              allow-custom="true"
+              get-options="ctrl.getAvailableCurveOptions($query)"
+              on-change="ctrl.onChangeInternal()">
+          </gf-form-dropdown>
+          </div>
+        </div>
+        <!-- Aesthetic right space -->
+        <div class="gf-form gf-form--grow">
+          <div class="gf-form-label gf-form-label--grow"></div>
+        </div>
+      </div
+
+
+
+    
+  <!--*****************************************************************************************************-->
+  <!--                                                                                                     -->  
+  <!--                                     INTERFACE BOXES                                                 -->
+  <!--                                                                                                     -->
+  <!--*****************************************************************************************************-->
+  <!-- New line -->  
+  <div class="gf-form-inline" ng-show="ctrl.target.displayInterfaceBox == true" ng-disabled="!ctrl.target.displayInterfaceBox == true">   
+<!-- Device selection -->
+    <div ng-if="!ctrl.target.rawQuery">
+      <div class="gf-form">
+        <label class="gf-form-label query-keyword width-7">Device</label>
+        <gf-form-dropdown model="ctrl.target.deviceID"
+          style="width: 300px;"
+          allow-custom="true"
+          lookup-text="true"
+          get-options="ctrl.getDeviceOptions($query)"
+          on-change="ctrl.onChangeInternal()">
+      </gf-form-dropdown>
+      </div>
+    </div>
+  
+<!-- Interface selection -->
+    <div ng-if="!ctrl.target.rawQuery">
+      <div class="gf-form">
+          <label class="gf-form-label query-keyword width-7">Interface</label>
+        <gf-form-dropdown model="ctrl.target.interfaceID"
+          style="width: 300px;"
+          allow-custom="true"
+          lookup-text="true"
+          get-options="ctrl.getInterfaceOptions($query)"
+          on-change="ctrl.onChangeInternal()">
+        </gf-form-dropdown>
+      </div>
+    </div>   
+  <!-- Aesthetic right space -->
+    <div class="gf-form gf-form--grow">
+      <div class="gf-form-label gf-form-label--grow"></div>
+    </div>
+  </div>
+  
+  <!-- New line -->
+  <div class="gf-form-inline" ng-show="ctrl.target.displayInterfaceBox == true" ng-disabled="!ctrl.target.displayInterfaceBox == true">   
+<!-- Metric class selection -->
+        <div ng-if="!ctrl.target.rawQuery">
+          <div class="gf-form">
+              <label class="gf-form-label query-keyword width-7">Metric class</label>
+            <gf-form-dropdown model="ctrl.target.metricClassID"
+              style="width: 300px;"
+              allow-custom="true"
+              lookup-text="true"
+              get-options="ctrl.getMetricClassOptions($query)"
+              on-change="ctrl.onChangeInternal()">
+            </gf-form-dropdown>
+          </div>
+        </div>   
+  
+<!-- Metric of metric class selection -->
+        <div ng-if="!ctrl.target.rawQuery">
+          <div class="gf-form">
+              <label class="gf-form-label query-keyword width-7">Metric</label>
+            <gf-form-dropdown model="ctrl.target.metricID"
+              style="width: 300px;"
+              allow-custom="true"
+              lookup-text="true"
+              get-options="ctrl.getMetricOptions($query)"
+              on-change="ctrl.onChangeInternal()">
+            </gf-form-dropdown>
+          </div>
+        </div>   
+    <!-- Aesthetic right space -->
+        <div class="gf-form gf-form--grow">
+          <div class="gf-form-label gf-form-label--grow"></div>
+        </div>
+        </div>
+  <!-- New line -->  
+  
+    <div class="gf-form-inline" ng-show="ctrl.target.displayInterfaceBox" ng-disabled="!ctrl.target.displayInterfaceBox">  
+  <!-- <div class="gf-form-inline" ng-show="ctrl.target.displayDifferenciationAndCurveBox" ng-disabled="!ctrl.target.displayDifferenciationAndCurveBox">    -->
+  <!-- <div class="gf-form-inline">    -->
+    <!-- Differenciation selection -->
+    <div ng-if="!ctrl.target.rawQuery">
+      <div class="gf-form">
+        <label class="gf-form-label query-keyword width-7">Differenciation</label>
+      <gf-form-dropdown model="ctrl.target.differenciation"
+          style="width: 300px;"
+          allow-custom="true"
+          lookup-text="true"
+          get-options="ctrl.getDifferenciationOptions($query)"
+          on-change="ctrl.onChangeInternal()">
+      </gf-form-dropdown>
+      </div>
+    </div>
+  
+<!-- Curve selection -->
+    <div ng-if="!ctrl.target.rawQuery">
+      <div class="gf-form">
+        <label class="gf-form-label query-keyword width-7">Curve to print</label>
+      <gf-form-dropdown model="ctrl.target.selectedCurve"
+          style="width: 300px;"
+          allow-custom="true"
+          get-options="ctrl.getAvailableCurveOptions($query)"
+          on-change="ctrl.onChangeInternal()">
+      </gf-form-dropdown>
+      </div>
+    </div>
+    <!-- Aesthetic right space -->
+    <div class="gf-form gf-form--grow">
+      <div class="gf-form-label gf-form-label--grow"></div>
+    </div>
+  </div>
+  </query-editor-row> 
