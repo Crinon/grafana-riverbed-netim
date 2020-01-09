@@ -7,6 +7,8 @@ Data retrieved are shown in panel (graph, heatmap, table ...).
 This plugin is fully native, it replace this older one who required a Python server to be runned : https://github.com/Crinon/outDated-Grafana-Datasource-Plugin-For-Riverbed-NetIM
 
 
+![alt text](https://raw.githubusercontent.com/Crinon/grafana-riverbed-netim/master/screenNetIMreadme.PNG)
+
 ## Installation
 
 Download, unzip and place the ```grafana-riverbed-netim``` folder in the plugins directory /var/lib/grafana/plugins
