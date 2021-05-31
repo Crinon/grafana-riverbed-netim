@@ -15,6 +15,8 @@ Download, unzip and place the ```grafana-riverbed-netim``` folder in the plugins
 
 You may need to reboot your Grafana server to complete plugin installation
 
+In case of "unsigned external plugin" warning you need to rebuild the plugin (executes "Dev setup" steps)
+
 
 ### Dev setup
 
